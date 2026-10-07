@@ -3,12 +3,7 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
-#include <QStack>
 #include <QHash>
-
-#include <functional>
-#include <cmath>
-#include <limits>
 
 #include "expressionevaluator.h"
 #include "ui_mainwindow.h"
@@ -103,6 +98,13 @@ private:
      * \brief Fill both lineEdits with error strings
      */
     void showErr(const QString& msg);
+
+    //  Drop a stale error so the next keystroke starts clean
+    void clearError(void);
+    //  Drop a finished equals result so the next keystroke starts a new entry
+    void discardResult(void);
+    //  Both of the above, for handlers that begin a fresh operand
+    void beginNewEntry(void);
 
     /*!
      * \brief Prepare widget stylesheets

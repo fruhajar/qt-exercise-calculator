@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDebug>
+
+#include <typeinfo>
+
 template<typename T>
 T* getSenderWidget(QObject* sender) {
     auto* widget = qobject_cast<T*>(sender);
@@ -23,16 +27,7 @@ void MainWindow::onNumberClicked(void) {
 
     int digit = it.value();
 
-    if(m_hasErr) {
-        m_exprEval.reset();
-        m_hasErr = false;
-        ui->prevExpr_LE->clear();
-    }
-
-    if(m_exprEval.hasResult()) {
-        m_exprEval.reset();
-        ui->prevExpr_LE->clear();
-    }
+    beginNewEntry();
 
     //  Append digit to current value
     QString currentValue = m_exprEval.getCurrentValue();
@@ -127,17 +122,7 @@ void MainWindow::onEqualsClicked() {
 }
 
 void MainWindow::onDecimalClicked(void) {
-    if(m_hasErr) {
-        m_exprEval.reset();
-        m_hasErr = false;
-        ui->prevExpr_LE->clear();
-    }
-
-    //  If we just computed a result, start fresh
-    if(m_exprEval.hasResult()) {
-        m_exprEval.reset();
-        ui->prevExpr_LE->clear();
-    }
+    beginNewEntry();
 
     QString currentValue = m_exprEval.getCurrentValue();
     if(currentValue.isEmpty() || m_waitingForOperand) {
@@ -181,11 +166,7 @@ void MainWindow::onClearClicked(void) {
 }
 
 void MainWindow::onSoftClearClicked(void) {
-    if(m_hasErr) {
-        m_exprEval.reset();
-        m_hasErr = false;
-        ui->prevExpr_LE->clear();
-    }
+    clearError();
 
     m_exprEval.setCurrentValue(QString());
     ui->currExpr_LE->setText(QStringLiteral("0"));
@@ -197,11 +178,7 @@ void MainWindow::onPlusMinusClicked(void) {
         return;
     }
 
-    //  If we just computed a result, start fresh
-    if(m_exprEval.hasResult()) {
-        m_exprEval.reset();
-        ui->prevExpr_LE->clear();
-    }
+    discardResult();
 
     QString currentValue = m_exprEval.getCurrentValue();
     if(currentValue.isEmpty() || currentValue == QStringLiteral("0")) {
@@ -229,11 +206,7 @@ void MainWindow::onDeleteClicked(void) {
         return;
     }
 
-    //  If we just computed a result with equals, start fresh
-    if(m_exprEval.hasResult()) {
-        m_exprEval.reset();
-        ui->prevExpr_LE->clear();
-    }
+    discardResult();
 
     QString currentValue = m_exprEval.getCurrentValue();
 

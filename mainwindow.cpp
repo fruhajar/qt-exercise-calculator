@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include <algorithm>
+#include <functional>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -39,7 +42,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
             }
         }
 
-        static const QHash<int, std::function<void()>> keyHandlers = {
+        const QHash<int, std::function<void()>> keyHandlers = {
 #define KEY_CASE(key, widget) \
         {Qt::Key_##key, [this]{ ui->widget##_PB->click(); }},
             KEY_CASE(Return, equals)
@@ -82,6 +85,30 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
     }
 
     return QObject::eventFilter(watched, event);
+}
+
+void MainWindow::clearError(void) {
+    if(!m_hasErr) {
+        return;
+    }
+
+    m_exprEval.reset();
+    m_hasErr = false;
+    ui->prevExpr_LE->clear();
+}
+
+void MainWindow::discardResult(void) {
+    if(!m_exprEval.hasResult()) {
+        return;
+    }
+
+    m_exprEval.reset();
+    ui->prevExpr_LE->clear();
+}
+
+void MainWindow::beginNewEntry(void) {
+    clearError();
+    discardResult();
 }
 
 void MainWindow::showErr(const QString& msg) {

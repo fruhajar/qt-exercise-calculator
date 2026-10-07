@@ -1,12 +1,9 @@
 #ifndef EXPRESSIONEVALUATOR_H
 #define EXPRESSIONEVALUATOR_H
 
-#include <QRegularExpression>
-#include <QStringView>
 #include <QString>
 #include <QStack>
 #include <QHash>
-#include <QDebug>
 
 #include <functional>
 #include <optional>
@@ -178,11 +175,6 @@ public:
         return result;
     }
 
-    //  Check if we can evaluate
-    bool canEvaluate() const {
-        return !m_completeExpression.isEmpty() || !m_currentValue.isEmpty();
-    }
-
     //  Apply unary function to a value
     std::optional<double> applyUnaryFunction(const QString& symbol, double value) const {
         const QString funcName = mapUnarySymbol(symbol);
@@ -198,8 +190,8 @@ public:
 private:
     QString m_completeExpression;  //  Complete expression
     QString m_currentValue;
-    bool m_hasEqualsResult;
-    int m_openParenth;
+    bool m_hasEqualsResult = false;
+    int m_openParenth = 0;
 
     QHash<QString, int> m_precedence;
     QHash<QString, std::function<std::optional<double>(double)>> m_unaryFuncs;
